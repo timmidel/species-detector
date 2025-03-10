@@ -65,7 +65,7 @@ export default function CameraComponent({
 
       // Open detect-species page and pass the uri and image link
       router.push({
-        pathname: "../app/detect-species",
+        pathname: "/detect-species",
         params: { uri: uri, imageLink: imageLink },
       });
     } catch (error) {
@@ -86,13 +86,17 @@ export default function CameraComponent({
   };
 
   const uploadImage = async (uri: string) => {
-    const API_KEY = Constants.expoConfig?.extra?.API_KEY;
+    const API_KEY = process.env.IMGBB_KEY;
     try {
       const base64 = await uriToBase64(uri);
       if (base64) {
         const formData = new FormData();
-        formData.append("key", API_KEY);
+        if (API_KEY) {
+          formData.append("key", API_KEY);
+        }
+
         formData.append("image", base64);
+        formData.append("expiration", "60");
 
         const uploadResponse = await fetch("https://api.imgbb.com/1/upload", {
           method: "POST",

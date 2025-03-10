@@ -30,9 +30,6 @@
     "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
-    },
-    "extra": {
-      "API_KEY": "6eb99076e5f8cd011159353e3ee7d165"
     }
   }
 }
