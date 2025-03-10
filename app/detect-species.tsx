@@ -12,7 +12,7 @@ export default function DetectSpecies() {
     const detectSpecies = async () => {
       const formData = new FormData();
       formData.append("image", imageLink as string);
-      const LOCAL_URL = process.env.LOCAL_URL;
+      const LOCAL_URL = process.env.EXPO_PUBLIC_LOCAL_URL;
       try {
         const response = await fetch(`http://${LOCAL_URL}:3000/inference`, {
           method: "POST",
