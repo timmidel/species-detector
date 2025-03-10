@@ -6,6 +6,9 @@ import { Text, View } from "@/components/Themed";
 import * as MediaLibrary from "expo-media-library";
 import { Image } from "expo-image";
 import { FontAwesome6, AntDesign } from "@expo/vector-icons";
+import Constants from "expo-constants";
+import * as FileSystem from "expo-file-system";
+import { useRouter } from "expo-router";
 
 interface CameraComponentProps {
   onCameraClose: () => void;
@@ -20,6 +23,7 @@ export default function CameraComponent({
   const [facing, setFacing] = useState<CameraType>("back");
   const ref = useRef<CameraView>(null);
   const [uri, setUri] = useState<string | null>(null);
+  const router = useRouter();
 
   const toggleCameraFacing = () => {
     setFacing((curr) => (curr === "back" ? "front" : "back"));
@@ -54,9 +58,59 @@ export default function CameraComponent({
       } else {
         await MediaLibrary.createAlbumAsync("ZooView", asset, false);
       }
-      console.log("Image saved!");
+      console.log("Image saved locally!");
+
+      // Upload image online
+      const imageLink = await uploadImage(uri);
+
+      // Open detect-species page and pass the uri and image link
+      router.push({
+        pathname: "../app/detect-species",
+        params: { uri: uri, imageLink: imageLink },
+      });
     } catch (error) {
       console.error("Error saving picture:", error);
+    }
+  };
+
+  const uriToBase64 = async (uri: string): Promise<string | null> => {
+    try {
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return base64;
+    } catch (error) {
+      console.error("Error converting URI to Base64:", error);
+      return null;
+    }
+  };
+
+  const uploadImage = async (uri: string) => {
+    const API_KEY = Constants.expoConfig?.extra?.API_KEY;
+    try {
+      const base64 = await uriToBase64(uri);
+      if (base64) {
+        const formData = new FormData();
+        formData.append("key", API_KEY);
+        formData.append("image", base64);
+
+        const uploadResponse = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await uploadResponse.json();
+
+        if (result.success) {
+          console.log(result.data);
+          return result.data.url; // Return the image URL
+        } else {
+          console.log(result.error);
+        }
+      }
+    } catch (error) {
+      console.error("Error uploading to ImgBB:", error);
+      throw error;
     }
   };
 
@@ -130,6 +184,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    width: "100%",
     padding: 15,
   },
   shutterBtn: {
