@@ -6,7 +6,6 @@ import { Text, View } from "@/components/Themed";
 import * as MediaLibrary from "expo-media-library";
 import { Image } from "expo-image";
 import { FontAwesome6, AntDesign } from "@expo/vector-icons";
-import Constants from "expo-constants";
 import * as FileSystem from "expo-file-system";
 import { useRouter } from "expo-router";
 
@@ -86,7 +85,7 @@ export default function CameraComponent({
   };
 
   const uploadImage = async (uri: string) => {
-    const API_KEY = process.env.IMGBB_KEY;
+    const API_KEY = process.env.EXPO_PUBLIC_IMGBB_KEY;
     try {
       const base64 = await uriToBase64(uri);
       if (base64) {
@@ -94,7 +93,6 @@ export default function CameraComponent({
         if (API_KEY) {
           formData.append("key", API_KEY);
         }
-
         formData.append("image", base64);
         formData.append("expiration", "60");
 

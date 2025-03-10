@@ -10,8 +10,6 @@ export default function DetectSpecies() {
 
   useEffect(() => {
     const detectSpecies = async () => {
-      const formData = new FormData();
-      formData.append("image", imageLink as string);
       const LOCAL_URL = process.env.EXPO_PUBLIC_LOCAL_URL;
       try {
         const response = await fetch(`http://${LOCAL_URL}:3000/inference`, {
