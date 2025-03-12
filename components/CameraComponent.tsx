@@ -66,47 +66,28 @@ export default function CameraComponent() {
     }
   };
 
-  const uriToBase64 = async (uri: string): Promise<string | null> => {
-    try {
-      const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      return base64;
-    } catch (error) {
-      console.error("Error converting URI to Base64:", error);
-      return null;
-    }
-  };
-
   const uploadImage = async (uri: string) => {
-    const API_KEY = process.env.EXPO_PUBLIC_IMGBB_KEY;
-    try {
-      const base64 = await uriToBase64(uri);
-      if (base64) {
-        const formData = new FormData();
-        if (API_KEY) {
-          formData.append("key", API_KEY);
-        }
-        formData.append("image", base64);
-        formData.append("expiration", "60");
+    const formData = new FormData();
+    formData.append("file", {
+      uri: uri,
+      type: "image/jpeg",
+      name: "animal.jpg",
+    } as any);
+    formData.append("upload_preset", "species-detector"); // Replace with your preset name
 
-        const uploadResponse = await fetch("https://api.imgbb.com/1/upload", {
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.EXPO_PUBLIC_CLOUD_NAME}/image/upload`,
+        {
           method: "POST",
           body: formData,
-        });
-
-        const result = await uploadResponse.json();
-
-        if (result.success) {
-          console.log(result.data);
-          return result.data.url; // Return the image URL
-        } else {
-          console.log(result.error);
         }
-      }
+      );
+      const data = await response.json();
+      console.log("Upload successful:", data);
+      return data.secure_url;
     } catch (error) {
-      console.error("Error uploading to ImgBB:", error);
-      throw error;
+      console.error("Upload failed:", error);
     }
   };
 
