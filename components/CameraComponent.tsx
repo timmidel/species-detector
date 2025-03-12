@@ -1,5 +1,5 @@
 import { _View, StyleSheet } from "react-native";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { Button, TouchableOpacity } from "react-native";
 import { Text, View } from "@/components/Themed";
@@ -9,13 +9,7 @@ import { FontAwesome6, AntDesign } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import { useRouter } from "expo-router";
 
-interface CameraComponentProps {
-  onCameraClose: () => void;
-}
-
-export default function CameraComponent({
-  onCameraClose,
-}: CameraComponentProps) {
+export default function CameraComponent() {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [mediaPermission, requestMediaPermission] =
     MediaLibrary.usePermissions();
@@ -138,7 +132,10 @@ export default function CameraComponent({
         responsiveOrientationWhenOrientationLocked
       >
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={onCameraClose}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push("/(tabs)")}
+          >
             <AntDesign name="close" size={30} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={takePicture}>

@@ -1,14 +1,11 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome6";
 import { Tabs } from "expo-router";
-import { StyleSheet } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
@@ -18,13 +15,10 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, false),
         tabBarStyle: {
           height: 55,
@@ -48,10 +42,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="camera-retro" color={color} />
           ),
+          tabBarStyle: { display: "none" },
         }}
       />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({});
