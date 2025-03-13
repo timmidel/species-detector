@@ -6,8 +6,8 @@ import { Text, View } from "@/components/Themed";
 import * as MediaLibrary from "expo-media-library";
 import { Image } from "expo-image";
 import { FontAwesome6, AntDesign } from "@expo/vector-icons";
-import * as FileSystem from "expo-file-system";
 import { useRouter } from "expo-router";
+import GalleryComponent from "./GalleryComponent";
 
 export default function CameraComponent() {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
@@ -53,14 +53,8 @@ export default function CameraComponent() {
       }
       console.log("Image saved locally!");
 
-      // Upload image online
-      const imageLink = await uploadImage(uri);
-
-      // Open detect-species page and pass the uri and image link
-      router.push({
-        pathname: "/detect-species",
-        params: { uri: uri, imageLink: imageLink },
-      });
+      // Redirect to detect-species page
+      redirect(uri);
     } catch (error) {
       console.error("Error saving picture:", error);
     }
@@ -76,6 +70,7 @@ export default function CameraComponent() {
     formData.append("upload_preset", "species-detector");
     formData.append("width", "750");
     formData.append("height", "1000");
+    formData.append("crop", "limit");
     formData.append("quality", "auto");
     formData.append("fetch_format", "auto");
 
@@ -88,12 +83,24 @@ export default function CameraComponent() {
         }
       );
       const data = await response.json();
-      console.log("Upload successful:", data);
+      console.log("Upload successful!");
       const imageLink = data.secure_url;
       return imageLink;
     } catch (error) {
       console.error("Upload failed:", error);
     }
+  };
+
+  // Save image to cloud and redirect to detect-species page
+  const redirect = async (uri: string) => {
+    // Upload image online
+    const imageLink = await uploadImage(uri);
+
+    // Open detect-species page and pass the uri and image link
+    router.push({
+      pathname: "/detect-species",
+      params: { uri: uri, imageLink: imageLink },
+    });
   };
 
   const renderCamera = () => {
@@ -117,13 +124,15 @@ export default function CameraComponent() {
         facing={facing}
         responsiveOrientationWhenOrientationLocked
       >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push("/(tabs)")}
-          >
+        <View style={styles.closeContainer}>
+          <TouchableOpacity onPress={() => router.push("/(tabs)")}>
             <AntDesign name="close" size={30} color="white" />
           </TouchableOpacity>
+        </View>
+        <View style={styles.buttonContainer}>
+          <View style={styles.button}>
+            <GalleryComponent uri={uri} setUri={setUri} redirect={redirect} />
+          </View>
           <TouchableOpacity style={styles.button} onPress={takePicture}>
             <View style={styles.shutterBtn}>
               <View style={styles.shutterBtnInner} />
@@ -167,10 +176,9 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     width: "100%",
     padding: 15,
+    justifyContent: "space-between",
   },
   shutterBtn: {
     backgroundColor: "transparent",
@@ -189,15 +197,20 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   buttonContainer: {
-    flex: 1,
     flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "transparent",
-    alignItems: "flex-end",
+  },
+  closeContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    backgroundColor: "transparent",
+    paddingHorizontal: 10,
   },
   button: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: "transparent",
   },
   buttonText: {
     fontSize: 24,
