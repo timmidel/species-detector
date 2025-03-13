@@ -4,10 +4,11 @@ import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { Button, TouchableOpacity } from "react-native";
 import { Text, View } from "@/components/Themed";
 import * as MediaLibrary from "expo-media-library";
-import { Image } from "expo-image";
-import { FontAwesome6, AntDesign } from "@expo/vector-icons";
+import { Image, ImageBackground } from "expo-image";
+import { FontAwesome6, AntDesign, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import GalleryComponent from "./GalleryComponent";
+import { useColorScheme } from "@/components/useColorScheme";
 
 export default function CameraComponent() {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
@@ -17,6 +18,7 @@ export default function CameraComponent() {
   const ref = useRef<CameraView>(null);
   const [uri, setUri] = useState<string | null>(null);
   const router = useRouter();
+  const colorScheme = useColorScheme();
 
   const toggleCameraFacing = () => {
     setFacing((curr) => (curr === "back" ? "front" : "back"));
@@ -28,7 +30,7 @@ export default function CameraComponent() {
       const photo = await ref.current.takePictureAsync();
       if (photo) {
         setUri(photo.uri);
-        savePicture(photo.uri);
+        // savePicture(photo.uri);
       }
     } catch (error) {
       console.error("Error taking picture:", error);
@@ -147,18 +149,25 @@ export default function CameraComponent() {
   };
   const renderPicture = () => {
     return (
-      <View style={styles.imageContainer}>
-        <Image
-          source={{ uri }}
-          contentFit="contain"
-          style={{ aspectRatio: 1 }}
-        />
-        <View style={styles.overlay}>
+      <ImageBackground style={styles.camera} source={{ uri }}>
+        <View style={styles.closeContainer}>
           <TouchableOpacity onPress={() => setUri(null)}>
-            <Text style={styles.buttonText}>Take a New Picture</Text>
+            <Ionicons name="arrow-back" size={30} color="white" />
           </TouchableOpacity>
         </View>
-      </View>
+        <View style={[styles.buttonContainer, { justifyContent: "flex-end" }]}>
+          <View style={styles.submitContainer}>
+            <TouchableOpacity onPress={() => savePicture(uri || "")}>
+              <Ionicons
+                name="send"
+                size={30}
+                color="#0C311E"
+                style={{ marginLeft: 5 }}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ImageBackground>
     );
   };
   return <>{uri ? renderPicture() : renderCamera()}</>;
@@ -221,11 +230,18 @@ const styles = StyleSheet.create({
     fontSize: 17,
     textAlign: "center",
   },
-  overlay: {
-    position: "absolute",
-    bottom: 50,
-    left: 0,
-    right: 0,
-    alignItems: "center",
+  submitContainer: {
+    backgroundColor: "white",
+    paddingVertical: 13,
+    paddingHorizontal: 11,
+    borderRadius: 100,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
