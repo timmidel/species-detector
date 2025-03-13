@@ -73,7 +73,11 @@ export default function CameraComponent() {
       type: "image/jpeg",
       name: "animal.jpg",
     } as any);
-    formData.append("upload_preset", "species-detector"); // Replace with your preset name
+    formData.append("upload_preset", "species-detector");
+    formData.append("width", "750");
+    formData.append("height", "1000");
+    formData.append("quality", "auto");
+    formData.append("fetch_format", "auto");
 
     try {
       const response = await fetch(
@@ -85,7 +89,8 @@ export default function CameraComponent() {
       );
       const data = await response.json();
       console.log("Upload successful:", data);
-      return data.secure_url;
+      const imageLink = data.secure_url;
+      return imageLink;
     } catch (error) {
       console.error("Upload failed:", error);
     }
