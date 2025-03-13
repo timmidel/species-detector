@@ -3,7 +3,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
 
 interface UriSetterProps {
-  uri: string | null;
+  isCapturing: boolean;
   setUri: (uri: string | null) => void;
   redirect: (uri: string) => Promise<void>;
 }
@@ -25,7 +25,7 @@ export default function GalleryComponent(props: UriSetterProps) {
   };
 
   return (
-    <TouchableOpacity onPress={pickImage}>
+    <TouchableOpacity onPress={pickImage} disabled={props.isCapturing}>
       <FontAwesome name="photo" size={35} color="white" />
     </TouchableOpacity>
   );

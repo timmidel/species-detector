@@ -4,7 +4,7 @@ import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { Button, TouchableOpacity } from "react-native";
 import { Text, View } from "@/components/Themed";
 import * as MediaLibrary from "expo-media-library";
-import { Image, ImageBackground } from "expo-image";
+import { ImageBackground } from "expo-image";
 import { FontAwesome6, AntDesign, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import GalleryComponent from "./GalleryComponent";
@@ -14,6 +14,8 @@ export default function CameraComponent() {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [mediaPermission, requestMediaPermission] =
     MediaLibrary.usePermissions();
+  const [isCameraReady, setIsCameraReady] = useState<boolean>(false);
+  const [isCapturing, setIsCapturing] = useState(false);
   const [facing, setFacing] = useState<CameraType>("back");
   const ref = useRef<CameraView>(null);
   const [uri, setUri] = useState<string | null>(null);
@@ -25,15 +27,22 @@ export default function CameraComponent() {
   };
 
   const takePicture = async () => {
-    if (!ref.current) return;
+    if (!isCameraReady || !ref.current || isCapturing) return;
+    setIsCapturing(true);
     try {
-      const photo = await ref.current.takePictureAsync();
+      const options = {
+        quality: 0.5,
+        base64: false,
+        skipProcessing: true,
+      };
+      const photo = await ref.current.takePictureAsync(options);
       if (photo) {
         setUri(photo.uri);
-        // savePicture(photo.uri);
       }
     } catch (error) {
       console.error("Error taking picture:", error);
+    } finally {
+      setIsCapturing(false);
     }
   };
 
@@ -125,22 +134,38 @@ export default function CameraComponent() {
         ref={ref}
         facing={facing}
         responsiveOrientationWhenOrientationLocked
+        onCameraReady={() => setIsCameraReady(true)}
       >
         <View style={styles.closeContainer}>
-          <TouchableOpacity onPress={() => router.push("/(tabs)")}>
+          <TouchableOpacity
+            onPress={() => router.push("/(tabs)")}
+            disabled={isCapturing}
+          >
             <AntDesign name="close" size={30} color="white" />
           </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
           <View style={styles.button}>
-            <GalleryComponent uri={uri} setUri={setUri} redirect={redirect} />
+            <GalleryComponent
+              isCapturing={isCapturing}
+              setUri={setUri}
+              redirect={redirect}
+            />
           </View>
-          <TouchableOpacity style={styles.button} onPress={takePicture}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={takePicture}
+            disabled={isCapturing}
+          >
             <View style={styles.shutterBtn}>
               <View style={styles.shutterBtnInner} />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={toggleCameraFacing}
+            disabled={isCapturing}
+          >
             <FontAwesome6 name="rotate-left" size={32} color="white" />
           </TouchableOpacity>
         </View>
