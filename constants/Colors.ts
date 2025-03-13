@@ -5,21 +5,21 @@ const secondaryColor = "#8D5D3D";
 
 export default {
   light: {
-    text: "#000",
+    primaryColor: primaryColor,
+    secondaryColor: secondaryColor,
+    text: primaryColor,
     background: "#F9EFE5",
     tint: tintColorLight,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorLight,
-    primaryColor: primaryColor,
-    secondaryColor: secondaryColor,
   },
   dark: {
+    primaryColor: primaryColor,
+    secondaryColor: secondaryColor,
     text: "#fff",
     background: "#000",
     tint: primaryColor,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorDark,
-    primaryColor: primaryColor,
-    secondaryColor: secondaryColor,
   },
 };
