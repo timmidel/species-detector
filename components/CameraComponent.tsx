@@ -246,11 +246,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "transparent",
   },
-  buttonText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
-  },
   permissionText: {
     fontSize: 17,
     textAlign: "center",

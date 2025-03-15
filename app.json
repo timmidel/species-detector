@@ -41,7 +41,8 @@
             "./assets/fonts/Poppins-Medium.ttf"
           ]
         }
-      ]
+      ],
+      "expo-sqlite"
     ]
   }
 }

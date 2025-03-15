@@ -7,10 +7,13 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
+import * as SQLite from "expo-sqlite";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import { DatabaseContext } from "@/contexts/databaseContext";
+import { initDatabase } from "@/utils/database";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -33,6 +36,14 @@ export default function RootLayout() {
     Poppins: require("../assets/fonts/Poppins-Medium.ttf"),
     ...FontAwesome.font,
   });
+  const [database, setDatabase] = useState<SQLite.SQLiteDatabase | null>(null);
+  useEffect(() => {
+    const initializeDb = async () => {
+      const db = await initDatabase();
+      setDatabase(db);
+    };
+    initializeDb();
+  }, []);
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -49,7 +60,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <DatabaseContext.Provider value={database}>
+      <RootLayoutNav />
+    </DatabaseContext.Provider>
+  );
 }
 
 function RootLayoutNav() {
