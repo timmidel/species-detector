@@ -36,11 +36,11 @@ export default function RootLayout() {
     Poppins: require("../assets/fonts/Poppins-Medium.ttf"),
     ...FontAwesome.font,
   });
-  const [database, setDatabase] = useState<SQLite.SQLiteDatabase | null>(null);
+  const [db, setDb] = useState<SQLite.SQLiteDatabase | null>(null);
   useEffect(() => {
     const initializeDb = async () => {
-      const db = await initDatabase();
-      setDatabase(db);
+      const database = await initDatabase();
+      setDb(database);
     };
     initializeDb();
   }, []);
@@ -61,7 +61,7 @@ export default function RootLayout() {
   }
 
   return (
-    <DatabaseContext.Provider value={database}>
+    <DatabaseContext.Provider value={db}>
       <RootLayoutNav />
     </DatabaseContext.Provider>
   );
