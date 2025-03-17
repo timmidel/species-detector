@@ -53,6 +53,21 @@ export const Discovery = {
       return [];
     }
   },
+  getByImageLink: async (
+    db: SQLite.SQLiteDatabase,
+    imageLink: string
+  ): Promise<Discovery | undefined> => {
+    try {
+      const result = await db.getFirstAsync(
+        "SELECT * FROM discoveries WHERE imageLink = ?",
+        [imageLink]
+      );
+      return result ? (result as Discovery) : undefined;
+    } catch (error) {
+      console.error("Error in getting the discovery:", error);
+      return undefined;
+    }
+  },
   deleteDiscovery: async (
     db: SQLite.SQLiteDatabase,
     id: number

@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { Image } from "expo-image";
+
 import { Text, View } from "@/components/Themed";
 import { useColorScheme } from "@/components/useColorScheme";
-import { Image } from "expo-image";
+import { useDatabase } from "@/contexts/databaseContext";
+import { Discovery } from "@/utils/database";
 
 interface SpeciesPrediction {
   commonName: string;
@@ -18,6 +21,7 @@ export default function DetectSpecies() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const colorScheme = useColorScheme();
+  const db = useDatabase();
 
   console.log(imageLink);
 
@@ -46,13 +50,45 @@ export default function DetectSpecies() {
         setPrediction(result);
       } catch (err: any) {
         console.log(err);
-        setError(err.message || "An error occurred.");
+        setError(
+          err.message || "An error occurred in identifying the species."
+        );
       } finally {
         setLoading(false);
       }
     };
     detectSpecies();
   }, [imageLink]);
+
+  useEffect(() => {
+    const addDiscovery = async () => {
+      if (!prediction || !imageLink) return;
+      try {
+        const existingDiscovery = await Discovery.getByImageLink(
+          db,
+          imageLink as string
+        );
+        if (existingDiscovery) {
+          console.log("Skipping duplicate discovery, image already exists.");
+          return;
+        }
+        const result = await Discovery.addDiscovery(
+          db,
+          prediction?.commonName,
+          prediction?.scientificName,
+          prediction?.habitat,
+          prediction?.additionalInfo,
+          imageLink as string
+        );
+        if (result) {
+          console.log("Successfully added to discoveries!\n", result);
+        }
+      } catch (error: any) {
+        setError(error.message || "An error occurred in adding discovery.");
+      }
+    };
+    addDiscovery();
+  }, [prediction]);
 
   return (
     <ScrollView
