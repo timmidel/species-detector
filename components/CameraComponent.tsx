@@ -9,6 +9,7 @@ import { FontAwesome6, AntDesign, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import GalleryComponent from "./GalleryComponent";
 import { useColorScheme } from "@/components/useColorScheme";
+import ScannerAnimation from "./ScannerAnimation";
 
 export default function CameraComponent() {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
@@ -16,6 +17,7 @@ export default function CameraComponent() {
     MediaLibrary.usePermissions();
   const [isCameraReady, setIsCameraReady] = useState<boolean>(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [facing, setFacing] = useState<CameraType>("back");
   const ref = useRef<CameraView>(null);
   const [uri, setUri] = useState<string | null>(null);
@@ -72,6 +74,10 @@ export default function CameraComponent() {
   };
 
   const uploadImage = async (uri: string) => {
+    if (isUploading) {
+      return;
+    }
+    setIsUploading(true);
     const formData = new FormData();
     formData.append("file", {
       uri: uri,
@@ -96,6 +102,7 @@ export default function CameraComponent() {
       const data = await response.json();
       console.log("Upload successful!");
       const imageLink = data.secure_url;
+      setIsUploading(false);
       return imageLink;
     } catch (error) {
       console.error("Upload failed:", error);
@@ -106,7 +113,6 @@ export default function CameraComponent() {
   const redirect = async (uri: string) => {
     // Upload image online
     const imageLink = await uploadImage(uri);
-
     // Open detect-species page and pass the uri and image link
     router.push({
       pathname: "/detect-species",
@@ -195,7 +201,17 @@ export default function CameraComponent() {
       </ImageBackground>
     );
   };
-  return <>{uri ? renderPicture() : renderCamera()}</>;
+  return (
+    <>
+      {isUploading ? (
+        <ScannerAnimation uri={uri || ""} />
+      ) : uri ? (
+        renderPicture()
+      ) : (
+        renderCamera()
+      )}
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
