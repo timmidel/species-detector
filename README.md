@@ -2,6 +2,8 @@
 
 **ZooView is a mobile application to identify animal species using a visual language model.** 
 
+![Image](https://github.com/user-attachments/assets/dbf90bcb-934f-4483-9988-214c69c28fb6)
+
 ## 📱 Overview
 
 **ZooView** is a mobile application developed with [Expo](https://expo.dev/) that enables users to identify animal species through image recognition. By leveraging machine learning models, the app provides quick and accurate species identification, making it a valuable tool for wildlife enthusiasts, researchers, and educators. 
